@@ -773,14 +773,6 @@ mul_t(a) = promote_symtype(*, symtype(a))
 
 *(b::SN, a::Number) = iszero(a) ? a : isone(a) ? b : Mul(mul_t(a, b), makemul(a, b)...)
 
-/(a::Union{SN,Number}, b::SN) = a * b^(-1)
-
-\(a::SN, b::Union{Number, SN}) = b / a
-
-\(a::Number, b::SN) = b / a
-
-/(a::SN, b::Number) = inv(b) * a
-
 """
     Pow(base, exp)
 
