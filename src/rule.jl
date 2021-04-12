@@ -311,7 +311,7 @@ function (acr::ACRule)(term)
     else
         f =  operation(term)
         # Assume that the matcher was formed by closing over a term
-        if f != operation(r.lhs) # Maybe offer a fallback if m.term errors. 
+        if f != operation(r.lhs) # Maybe offer a fallback if m.term errors.
             return nothing
         end
 
@@ -331,6 +331,58 @@ function (acr::ACRule)(term)
     end
 end
 
+#-----------------------------
+#### Numeric Rules
+
+function expr_to_canon(expr)
+    if expr isa Expr
+        if expr.head === :call
+            if expr.args[1] === :(-)
+                if length(expr.args) == 2
+                    return :((-1)*$(expr_to_canon(expr.args[2])))
+                elseif !(expr.args[3] isa Number)
+                    return :($(expr_to_canon(expr.args[2])) + (-1)*$(expr_to_canon(expr.args[3])))
+                else
+                    return :($(expr_to_canon(expr.args[2])) + $(-expr.args[3]))
+                end
+            elseif expr.args[1] === :(/)
+                if !(expr.args[2] isa Number) || expr.args[2] != 1
+                    if !(expr.args[3] isa Number) && !(expr.args[3] in [:π, :ℯ, :pi])
+                        return :($(expr_to_canon(expr.args[2])) * $(expr_to_canon(expr.args[3]))^(-1))
+                    else
+                        return :($(eval(:(inv($(expr.args[3]))))) * $(expr_to_canon(expr.args[2])))
+                    end
+                else
+                    # literal number
+                    return :($(expr_to_canon(expr.args[3]))^(-1))
+                end
+            elseif expr.args[1] === :(\)
+                return expr_to_canon(:($(expr.args[3]) / $(expr.args[2])))
+            elseif expr.args[1] === :(//)
+                if !(expr.args[3] isa Number) && !(expr.args[3] in [:π, :ℯ, :pi])
+                    return expr_to_canon(:($(expr.args[2]) / $(expr.args[3])))
+                else #if expr.args[3] isa Integer
+                    return expr_to_canon(:($(1//eval(expr.args[3])) * $(expr.args[2])))
+                end
+            else
+                return :($(expr.args[1])($(expr_to_canon.(expr.args[2:end])...)))
+            end
+        end
+    else
+        # treat as a literal
+        return expr
+    end
+end
+
+macro numrule(expr)
+    @assert expr.head == :call && expr.args[1] == :(=>)
+    lhs,rhs = expr.args[2], expr.args[3]
+    lhs = expr_to_canon(lhs)
+    expr = :($lhs => $rhs)
+    quote
+        $(esc(:(@rule($(expr)))))
+    end
+end
 
 struct RuleRewriteError
     rule
