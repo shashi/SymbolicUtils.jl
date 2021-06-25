@@ -57,4 +57,7 @@ include("code.jl")
 # ADjoints
 include("adjoints.jl")
 
+# TermInterface.jl 
+include("terminterface.jl")
+
 end # module
