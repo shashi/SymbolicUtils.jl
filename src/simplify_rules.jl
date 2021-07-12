@@ -69,7 +69,24 @@ let
         @acrule(cot(~x)^2 + -1*csc(~x)^2 => one(~x))
         @acrule(cot(~x)^2 +  1 => csc(~x)^2)
         @acrule(csc(~x)^2 + -1 => cot(~x)^2)
-    ]
+
+        # double-angle rules
+        @acrule(cos(~x)^2 + -1*sin(~x)^2   => cos(2 * ~x))
+        @acrule(2*sin(~x)*cos(~x)        => sin(2 * ~x))
+        @acrule(cosh(~x)^2 + sinh(~x)^2 => cosh(2 * ~x))
+        @acrule(2*sinh(~x)*cosh(~x)      => sinh(2 * ~x))
+
+        # addition/subtraction formulas
+        @acrule(sin(~x)cos(~y) + cos(~x)sin(~y) => sin(~x + ~y))
+        @acrule(sin(~x)cos(~y) + -1*cos(~x)*sin(~y) => sin(~x - ~y))
+        @acrule(cos(~x)cos(~y) + sin(~x)sin(~y) => cos(~x - ~y))
+        @acrule(cos(~x)cos(~y) + -1*sin(~x)*sin(~y) => cos(~x + ~y))
+        
+        @acrule(sinh(~x)cosh(~y) + cosh(~x)sinh(~y) => sinh(~x + ~y))
+        @acrule(cosh(~x)cosh(~y) + sinh(~x)sinh(~y) => cosh(~x + ~y))
+        @acrule(sinh(~x)cosh(~y) + -1*cosh(~x)*sinh(~y) => sinh(~x - ~y))
+        @acrule(cosh(~x)cosh(~y) + -1*sinh(~x)*sinh(~y) => cosh(~x - ~y))
+        ]
 
     BOOLEAN_RULES = [
         @rule((true | (~x)) => true)
